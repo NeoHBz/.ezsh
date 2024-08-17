@@ -14,7 +14,9 @@ inject_load_script() {
     # Check if the line is already in the .zshrc file
     if ! grep -Fxq "$LOAD_SCRIPT_LINE" "$ZSHRC_FILE"; then
       # Append the line to .zshrc
+      echo "" >> "$ZSHRC_FILE"
       echo "$LOAD_SCRIPT_LINE" >> "$ZSHRC_FILE"
+      echo "" >> "$ZSHRC_FILE"
       echo "Added line to $ZSHRC_FILE"
     else
         grep -nFx "$LOAD_SCRIPT_LINE" "$ZSHRC_FILE" | awk -F: '{print "Line already present in $ZSHRC_FILE at line " $1}'
