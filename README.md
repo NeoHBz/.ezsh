@@ -4,7 +4,7 @@ Custom zsh functions for ease of life
 ### Installation
 
 1. Clone the repository
-2. Run the following command:
+2. Run the following command (on zsh shell):
 ```
 chmod +x install.sh
 ./install.sh
