@@ -4,5 +4,5 @@ gcpp() {
     if [[ $filename == *.cpp ]]; then
         filename=${filename%.cpp}
     fi
-    g++ -o $filename $filename.cpp && ./$filename && rm $filename
+    g++ -std=c++11 -o $filename $filename.cpp && ./$filename && rm $filename
 }
