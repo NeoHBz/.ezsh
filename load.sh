@@ -6,6 +6,11 @@ ZSH_FUNCTION_DIR=~/.zsh/functions
 # Detect the operating system
 OS_TYPE=$(uname)
 
+# Source the .env file if it exists
+if [ -f ~/.zsh/.env ]; then
+  source ~/.zsh/.env
+fi
+
 # Source all .sh files in the directory and its subdirectories
 for file in $(find $ZSH_FUNCTION_DIR -type f \( -name '*.sh' -o -name '*.zsh' \)); do
   # Check if file is in a platform-specific folder
