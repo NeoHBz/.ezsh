@@ -1,3 +1,7 @@
 gccc() {
-  gcc -o $1 $1.c && ./$1 && rm $1
+    local filename=$1
+    if [[ $filename == *.c ]]; then
+        filename=${filename%.c}
+    fi
+    gcc -o $filename $filename.c && ./$filename && rm $filename
 }
