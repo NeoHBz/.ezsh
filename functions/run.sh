@@ -3,18 +3,24 @@ run() {
   local script_name="start"
   local choice
 
+  # Helper function to check for scripts in package.json
+  run_package_json() {
+    local dev_script=$(jq -r '.scripts.dev // empty' package.json)
+    local start_script=$(jq -r '.scripts.start // empty' package.json)
+
+    if [ -n "$dev_script" ]; then
+      script_name="dev"
+    fi
+    eval "$package_manager $script_name"
+  }
+
   if [ -f "ecosystem.config.js" ]; then
     if [ -f "package.json" ]; then
-      echo "Both ecosystem.config.js and package.json are present. Which one do you want to run?"
-      choice=$(gum choose {p,e})
+      choice=$(gum choose "package.json (p)" "ecosystem.config.js (e)")
+      choice=${choice:0:1}  # Get the first character of the choice
     else
       echo "ecosystem.config.js is present. Do you want to run it? (y/n, default: y): "
-    
-      if gum confirm; then
-        choice="e"
-      else
-        choice="n"
-      fi
+      choice=$(gum confirm && echo "e" || echo "n")
     fi
   elif [ -f "package.json" ]; then
     choice="p"
@@ -23,27 +29,19 @@ run() {
     return 1
   fi
 
-  if [ "$choice" = "p" ]; then
-    if [ -f "package.json" ]; then
-      local dev_script_exists=$(jq -r '.scripts.dev' package.json)
-      local start_script_exists=$(jq -r '.scripts.start' package.json)
-
-      if [ "$dev_script_exists" != "null" ]; then
-        script_name="dev"
-      fi
-
-      local command="$package_manager $script_name"
-      eval "$command"
-    else
-      echo "package.json not found in the current directory."
+  case "$choice" in
+    p)
+      run_package_json
+      ;;
+    e)
+      eval "pm2 start ecosystem.config.js"
+      ;;
+    n)
+      echo "Skipping running ecosystem.config.js"
+      ;;
+    *)
+      echo "Invalid choice. Please enter 'e' for ecosystem.config.js or 'p' for package.json."
       return 1
-    fi
-  elif [ "$choice" = "e" ]; then
-    eval "pm2 start ecosystem.config.js"
-  elif [ "$choice" = "n" ]; then
-    echo "Skipping running ecosystem.config.js"
-  else
-    echo "Invalid choice. Please enter 'e' for ecosystem.config.js or 'p' for package.json."
-    return 1
-  fi
+      ;;
+  esac
 }
