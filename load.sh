@@ -11,13 +11,13 @@ if [ -f ~/.zsh/.env ]; then
   source ~/.zsh/.env
 fi
 
-# Source all .sh files in the directory and its subdirectories
-for file in $(find $ZSH_FUNCTION_DIR -type f \( -name '*.sh' -o -name '*.zsh' \)); do
+# Source all .sh and .zsh files in the directory and its subdirectories
+find $ZSH_FUNCTION_DIR -type f \( -name '*.sh' -o -name '*.zsh' \) | while read file; do
   # Check if file is in a platform-specific folder
-  if [[ "$file" == *"/mac/" && "$OS_TYPE" != "Darwin" ]]; then
+  if [[ "$file" == */mac/* && "$OS_TYPE" != "Darwin" ]]; then
     # Skip if file is in mac-specific folder but not on macOS
     continue
-  elif [[ "$file" == *"/windows/" && "$OS_TYPE" != *"CYGWIN"* && "$OS_TYPE" != *"MINGW"* && "$OS_TYPE" != "MSYS"* ]]; then
+  elif [[ "$file" == */windows/* && "$OS_TYPE" != CYGWIN* && "$OS_TYPE" != MINGW* && "$OS_TYPE" != MSYS* ]]; then
     # Skip if file is in windows-specific folder but not on Windows
     continue
   fi
