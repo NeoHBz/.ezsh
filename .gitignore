@@ -3,3 +3,4 @@
 
 # repo files
 .env
+logs/

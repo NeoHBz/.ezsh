@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC -//Apple Computer//DTD PLIST 1.0//EN http://www.apple.com/DTDs/PropertyList-1.0.dtd>
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.my.detect.wifi.change</string>
+    
+    <key>ProgramArguments</key>
+    <array>
+        <string>/bin/sh</string>
+        <string>/Users/neohbz/.zsh/services/mac/detectwifi.sh</string>
+    </array>
+
+    <key>WatchPaths</key>
+    <array>
+        <string>/Library/Preferences/SystemConfiguration/com.apple.airport.preferences.plist</string>
+        <string>/Library/Preferences/SystemConfiguration/com.apple.wifi.message-tracer.plist</string>
+        <string>/Library/Preferences/com.apple.wifi.known-networks.plist</string>
+    </array>
+    
+    <key>StartInterval</key>
+    <integer>60</integer> <!-- Runs every 60 seconds -->
+
+    <key>StandardOutPath</key>
+    <string>/Users/neohbz/.zsh/logs/detectwifi_stdout.log</string>
+    
+    <key>StandardErrorPath</key>
+    <string>/Users/neohbz/.zsh/logs/detectwifi_stderr.log</string>
+</dict>
+</plist>
