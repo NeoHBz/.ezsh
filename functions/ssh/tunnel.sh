@@ -38,20 +38,27 @@ create_tunnel() {
 # Kill tunnel function
 kill_tunnel() {
   local name=$1
+  local remote_host="oracle"  # Use the same host name you defined in ~/.ssh/config
+
   if [[ -z "$name" ]]; then
     echo "Usage: kill_tunnel <name>"
     return 1
   fi
 
-  # Kill the SSH tunnel using the unique ControlPath file for the tunnel
-  if [[ -e "~/.ssh/sockets/tunnel_${name}" ]]; then
-    ssh -O exit -o ControlPath="~/.ssh/sockets/tunnel_${name}" "$remote_host"
-    echo "Tunnel '$name' has been killed."
-  else
-    echo "No active tunnel found with the name '$name'."
-  fi
-}
+  # Define the control path based on the tunnel name
+  local control_path="~/.ssh/sockets/tunnel_${name}"
 
-# Usage example
-# create_tunnel my_tunnel 32400 32400
-# kill_tunnel my_tunnel
+  # Check if the control path (socket) exists
+  if [[ ! -f $control_path ]]; then
+    echo "No active tunnel found with the name '$name'."
+    return 1
+  fi
+
+  # Execute the SSH exit command to kill the tunnel
+  echo "Killing tunnel '$name' using control socket at '$control_path'."
+  ssh -O exit -o ControlPath="$control_path" "$remote_host"
+
+  # Optionally, remove the socket file after killing the tunnel
+  rm -f "$control_path"
+  echo "Tunnel '$name' killed and control socket removed."
+}
