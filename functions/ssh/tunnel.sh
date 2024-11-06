@@ -1,3 +1,6 @@
+# Global toggle for skipping confirmation and additional echos
+execWithoutConfirmation=false
+
 # Create tunnel function
 create_tunnel() {
   local name=$1
@@ -26,20 +29,22 @@ create_tunnel() {
   # Concatenate the components to form the full SSH command
   local ssh_command="ssh -f -N -L $local_part:$remote_part $remote_host -o ControlPath=~/.ssh/sockets/tunnel_${name}"
 
-  # Echo the command for verification
-  echo "About to execute the following SSH command:"
-  echo "$ssh_command"
-  
-  # Wait for user input to continue
-  echo "Press Enter to execute the command or Ctrl+C to cancel..."
-  read
+  # Show the SSH command for verification if confirmation is enabled
+  if [[ "$execWithoutConfirmation" == false ]]; then
+    echo "About to execute the following SSH command:"
+    echo "$ssh_command"
+    echo "Press Enter to execute the command or Ctrl+C to cancel..."
+    read
+  fi
 
   # Execute the SSH command
   eval "$ssh_command" &>/dev/null
 
-  echo "Tunnel '$name' created: $local_part -> $remote_host:$remote_port"
+  # Only show tunnel creation message if confirmation is enabled
+  if [[ "$execWithoutConfirmation" == false ]]; then
+    echo "Tunnel '$name' created: $local_part -> $remote_host:$remote_port"
+  fi
 }
-
 
 # Kill tunnel function
 kill_tunnel() {
@@ -53,30 +58,30 @@ kill_tunnel() {
 
   # Define the control path with full expansion
   local control_path="$HOME/.ssh/sockets/tunnel_${name}"
-  echo $control_path
+
   # Check if the control path (socket) exists
   if [[ ! -S $control_path ]]; then
     echo "No active tunnel found with the name '$name'."
     return 1
   fi
 
-  # Send the exit command to the SSH session
-#   ssh -O exit -o ControlPath="$control_path" "$remote_host"
+  # Prepare the SSH exit command
   local ssh_command="ssh -O exit -o ControlPath=$control_path $remote_host"
 
-  # Echo the command for verification
-  echo "About to execute the following SSH command:"
-  echo "$ssh_command"
-  
-  # Wait for user input to continue
-  echo "Press Enter to execute the command or Ctrl+C to cancel..."
-  read
+  # Show the SSH command for verification if confirmation is enabled
+  if [[ "$execWithoutConfirmation" == false ]]; then
+    echo "About to execute the following SSH command:"
+    echo "$ssh_command"
+    echo "Press Enter to execute the command or Ctrl+C to cancel..."
+    read
+  fi
 
   # Execute the SSH command
   eval "$ssh_command" &>/dev/null
-  # Confirm tunnel termination and clean up
+
+  # Confirm tunnel termination and clean up if confirmation is enabled
   if [[ $? -eq 0 ]]; then
-    echo "Tunnel '$name' terminated successfully."
+    [[ "$execWithoutConfirmation" == false ]] && echo "Tunnel '$name' terminated successfully."
     rm -f "$control_path"
   else
     echo "Failed to terminate the tunnel '$name'."
