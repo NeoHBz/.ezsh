@@ -10,6 +10,12 @@ create_tunnel() {
     return 1
   fi
 
+  # Check if the local port is already in use
+  if lsof -i :$host_port &>/dev/null; then
+    echo "Port $host_port is already in use on the local host."
+    return 1
+  fi
+
   # Ensure the tunnel socket directory exists
   mkdir -p ~/.ssh/sockets
 
@@ -29,7 +35,7 @@ create_tunnel() {
   read
 
   # Execute the SSH command
-  eval "$ssh_command"
+  eval "$ssh_command" &>/dev/null
 
   echo "Tunnel '$name' created: $local_part -> $remote_host:$remote_port"
 }
@@ -45,20 +51,34 @@ kill_tunnel() {
     return 1
   fi
 
-  # Define the control path based on the tunnel name
-  local control_path="~/.ssh/sockets/tunnel_${name}"
-
+  # Define the control path with full expansion
+  local control_path="$HOME/.ssh/sockets/tunnel_${name}"
+  echo $control_path
   # Check if the control path (socket) exists
-  if [[ ! -f $control_path ]]; then
+  if [[ ! -S $control_path ]]; then
     echo "No active tunnel found with the name '$name'."
     return 1
   fi
 
-  # Execute the SSH exit command to kill the tunnel
-  echo "Killing tunnel '$name' using control socket at '$control_path'."
-  ssh -O exit -o ControlPath="$control_path" "$remote_host"
+  # Send the exit command to the SSH session
+#   ssh -O exit -o ControlPath="$control_path" "$remote_host"
+  local ssh_command="ssh -O exit -o ControlPath=$control_path $remote_host"
 
-  # Optionally, remove the socket file after killing the tunnel
-  rm -f "$control_path"
-  echo "Tunnel '$name' killed and control socket removed."
+  # Echo the command for verification
+  echo "About to execute the following SSH command:"
+  echo "$ssh_command"
+  
+  # Wait for user input to continue
+  echo "Press Enter to execute the command or Ctrl+C to cancel..."
+  read
+
+  # Execute the SSH command
+  eval "$ssh_command" &>/dev/null
+  # Confirm tunnel termination and clean up
+  if [[ $? -eq 0 ]]; then
+    echo "Tunnel '$name' terminated successfully."
+    rm -f "$control_path"
+  else
+    echo "Failed to terminate the tunnel '$name'."
+  fi
 }
