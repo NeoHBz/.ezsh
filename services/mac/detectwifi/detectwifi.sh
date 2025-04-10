@@ -5,8 +5,8 @@ LOG_FILE="$LOG_DIR/$(basename "$0" .sh).log"
 VERBOSE_LOGGING=true
 
 # Arrays of Wi-Fi names to check (exact match and substring match)
-WIFI_NAMES_EXACT=("NULL")
-WIFI_NAMES_SUBSTRING=("RED_APPEL_LIVING")
+WIFI_NAMES_EXACT=("")
+WIFI_NAMES_SUBSTRING=("")
 
 # Function to log messages
 log() {
