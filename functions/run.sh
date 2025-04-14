@@ -3,15 +3,19 @@ run() {
   local script_name="start"
   local choice
 
-  # Helper function to check for scripts in package.json
+  # Helper function to run package.json scripts
   run_package_json() {
-    local dev_script=$(jq -r '.scripts.dev // empty' package.json)
-    local start_script=$(jq -r '.scripts.start // empty' package.json)
-
-    if [ -n "$dev_script" ]; then
-      script_name="dev"
+    if [ -f "package.json" ]; then
+      local dev_script=$(jq -r '.scripts.dev // empty' package.json)
+      
+      if [ -n "$dev_script" ]; then
+        script_name="dev"
+      fi
+      
+      eval "$package_manager $script_name"
+      return 0
     fi
-    eval "$package_manager $script_name"
+    return 1
   }
 
   # Helper function to run turbo build
@@ -23,6 +27,7 @@ run() {
     return 1
   }
 
+  # Determine which configuration to use
   if [ -f "ecosystem.config.js" ]; then
     if [ -f "package.json" ]; then
       choice=$(gum choose "package.json (p)" "ecosystem.config.js (e)" ".turbo/turbo.json (t)")
@@ -45,18 +50,10 @@ run() {
   fi
 
   case "$choice" in
-    p)
-      run_package_json
-      ;;
-    e)
-      eval "pm2 start ecosystem.config.js"
-      ;;
-    t)
-      run_turbo
-      ;;
-    n)
-      echo "Skipping running ecosystem.config.js"
-      ;;
+    p) run_package_json ;;
+    e) eval "pm2 start ecosystem.config.js" ;;
+    t) run_turbo ;;
+    n) echo "Skipping running ecosystem.config.js" ;;
     *)
       echo "Invalid choice. Please enter 'e' for ecosystem.config.js, 'p' for package.json, or 't' for turbo configuration."
       return 1
