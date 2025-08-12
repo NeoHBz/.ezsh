@@ -1,3 +1,11 @@
 setopt HIST_IGNORE_ALL_DUPS
 setopt INC_APPEND_HISTORY
 setopt SHARE_HISTORY
+export ANDROID_HOME=$HOME/Library/Android/sdk
+export androidsdkmanager=$ANDROID_HOME/cmdline-tools/latest/bin
+export androidbuildtools=$ANDROID_HOME/build-tools/36.0.0
+export androidplatformtools=$ANDROID_HOME/platform-tools
+export PATH=$androidsdkmanager:$androidbuildtools:$androidplatformtools:$PATH
+export PATH="/opt/homebrew/opt/postgresql@17/bin:$PATH"
+export LDFLAGS="-L/opt/homebrew/opt/postgresql@17/lib"
+export CPPFLAGS="-I/opt/homebrew/opt/postgresql@17/include"
