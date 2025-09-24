@@ -3,8 +3,6 @@ run() {
   local file_arg="$1"
   local choice=""
 
-  # gum is optional; interactive prompts will fallback when it's not available
-
   # Handle direct file execution if a file argument is provided
   if [ -n "$file_arg" ] && [ -f "$file_arg" ]; then
     local file_ext="${file_arg##*.}"
