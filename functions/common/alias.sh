@@ -1,3 +1,4 @@
+alias python="python3"
 alias pyvenv="python -m venv .venv && source .venv/bin/activate && echo .venv/ >> .gitignore"
 alias pyreq="pip install -r requirements.txt"
 alias p="pyvenv && pyreq && python"
