@@ -3,10 +3,7 @@ run() {
   local file_arg="$1"
   local choice=""
 
-  # Ensure gum is available
-  if ! command -v gum &>/dev/null; then
-    echo "gum is not installed. Please install it first."
-  fi
+  # gum is optional; interactive prompts will fallback when it's not available
 
   # Handle direct file execution if a file argument is provided
   if [ -n "$file_arg" ] && [ -f "$file_arg" ]; then
@@ -14,10 +11,6 @@ run() {
     
     # Run based on file extension
     case "$file_ext" in
-      js)
-        eval "node $file_arg"
-        return 0
-        ;;
       ts)
         eval "ts-node $file_arg"
         return 0
@@ -65,17 +58,41 @@ run() {
     if [ -n "$ecosystem_file" ]; then
       if [ -f "package.json" ] || [ -f "composer.json" ] || [ -f ".turbo" ] || [ -f "turbo.json" ]; then
         # Build options list for user selection
-        options=()
-        [ -f "package.json" ] && options+=("package.json (p)")
-        [ -f "composer.json" ] && options+=("composer.json (c)")
-        ([ -f ".turbo" ] || [ -f "turbo.json" ]) && options+=(".turbo/turbo.json (t)")
-        options+=("$ecosystem_file (e)")
-        
-        choice=$(gum choose "${options[@]}")
-        choice=${choice:0:1}  # Get the first character of the choice
+  local -a menu_options
+  menu_options=()
+        [ -f "package.json" ] && menu_options+=("package.json (p)")
+        [ -f "composer.json" ] && menu_options+=("composer.json (c)")
+        ([ -f ".turbo" ] || [ -f "turbo.json" ]) && menu_options+=(".turbo/turbo.json (t)")
+        menu_options+=("$ecosystem_file (e)")
+
+        if command -v gum &>/dev/null; then
+          choice=$(gum choose "${menu_options[@]}")
+        else
+          echo "gum not installed; defaulting to ${menu_options[1]}"
+          choice="${menu_options[1]}"
+        fi
+    # Extract the letter inside parentheses, e.g. "package.json (p)" -> "p"
+    local _letter="${choice##*\(}"
+    _letter="${_letter%\)}"
+        if [ -n "$_letter" ] && [ "$_letter" != "$choice" ]; then
+          choice="$_letter"
+        else
+          choice=${choice:0:1}
+        fi
       else
         echo "$ecosystem_file is present. Do you want to run it? (y/n, default: y): "
-        choice=$(gum confirm && echo "e" || echo "n")
+        if command -v gum &>/dev/null; then
+          choice=$(gum confirm && echo "e" || echo "n")
+        else
+          printf "[Y/n] "
+          local ans
+          read -r ans
+          if [ -z "$ans" ] || [[ "$ans" =~ ^[Yy]$ ]]; then
+            choice="e"
+          else
+            choice="n"
+          fi
+        fi
       fi
     elif [ -f "composer.json" ]; then
       choice="c"
