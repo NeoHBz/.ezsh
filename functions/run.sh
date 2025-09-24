@@ -3,6 +3,11 @@ run() {
   local file_arg="$1"
   local choice=""
 
+  # Ensure gum is available
+  if ! command -v gum &>/dev/null; then
+    echo "gum is not installed. Please install it first."
+  fi
+
   # Handle direct file execution if a file argument is provided
   if [ -n "$file_arg" ] && [ -f "$file_arg" ]; then
     local file_ext="${file_arg##*.}"
