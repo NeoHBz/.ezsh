@@ -15,7 +15,7 @@ function asarapp() {
             return 1
         fi
         mkdir -p "${filename%.*}_asar"
-        asar extract "$asar_file" "${filename%.*}_asar"
+        bunx asar extract "$asar_file" "${filename%.*}_asar"
     elif [ "$1" = "-i" ]; then
         if [ -z "$2" ]; then
             echo "Usage: asarapp -i <filename>_asar"
@@ -40,7 +40,7 @@ function asarapp() {
             echo "Creating backup of original ASAR file to $backup_file"
             cp "$asar_file" "$backup_file"
         fi
-        asar pack "$filename" "$asar_file"
+        bunx asar pack "$filename" "$asar_file"
     else
         echo "Usage: asarapp -f <filename>.app or -i <filename>_asar"
     fi
