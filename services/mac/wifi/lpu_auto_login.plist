@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.ezsh.lpu.autologin</string>
+    
+    <key>ProgramArguments</key>
+    <array>
+        <string>/bin/bash</string>
+        <string>/Users/neohbz/.ezsh/services/mac/wifi/lpu_auto_login.sh</string>
+    </array>
+
+    <!-- Watch for WiFi changes -->
+    <key>WatchPaths</key>
+    <array>
+        <string>/Library/Preferences/SystemConfiguration/com.apple.airport.preferences.plist</string>
+        <string>/Library/Preferences/SystemConfiguration/com.apple.wifi.message-tracer.plist</string>
+    </array>
+    
+    <!-- Also run periodically (every 2 minutes) as a fallback -->
+    <!-- <key>StartInterval</key>
+    <integer>120</integer> -->
+    
+    <!-- Run on load -->
+    <key>RunAtLoad</key>
+    <true/>
+
+    <!-- Logging -->
+    <key>StandardOutPath</key>
+    <string>/Users/neohbz/.ezsh/logs/lpu_auto_login_stdout.log</string>
+    
+    <key>StandardErrorPath</key>
+    <string>/Users/neohbz/.ezsh/logs/lpu_auto_login_stderr.log</string>
+    
+    <!-- Process management -->
+    <key>ProcessType</key>
+    <string>Background</string>
+    
+    <!-- Keep it running even if it exits with an error
+    <key>KeepAlive</key>
+    <false/> -->
+    
+    <!-- Environment variables (optional) -->
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>PATH</key>
+        <string>/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
+    </dict>
+</dict>
+</plist>

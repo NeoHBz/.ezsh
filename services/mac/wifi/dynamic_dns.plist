@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC -//Apple Computer//DTD PLIST 1.0//EN http://www.apple.com/DTDs/PropertyList-1.0.dtd>
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.ezsh.dynamic_dns</string>
+    
+    <key>ProgramArguments</key>
+    <array>
+        <string>/bin/bash</string>
+        <string>/Users/neohbz/.ezsh/services/mac/wifi/dynamic_dns_service.sh</string>
+    </array>
+
+    <key>WatchPaths</key>
+    <array>
+        <string>/Library/Preferences/SystemConfiguration/com.apple.airport.preferences.plist</string>
+        <string>/Library/Preferences/SystemConfiguration/com.apple.wifi.message-tracer.plist</string>
+        <string>/Library/Preferences/com.apple.wifi.known-networks.plist</string>
+    </array>
+    
+    <!-- <key>StartInterval</key>
+    <integer>60</integer>  -->
+    <!-- Runs every 60 seconds -->
+
+    <key>StandardOutPath</key>
+    <string>/Users/neohbz/.ezsh/logs/dynamic_dns_stdout.log</string>
+    
+    <key>StandardErrorPath</key>
+    <string>/Users/neohbz/.ezsh/logs/dynamic_dns_stderr.log</string>
+</dict>
+</plist>
