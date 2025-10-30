@@ -93,20 +93,24 @@ Available services:
 ### Git Functions
 - `gcd` - Switch to dev branch
 - `gcm` - Switch to main/master branch
-- `gpo <branch>` - Pull from origin
+- `gpo <branch>` - Pull from origin branch
 - `gitrefresh` - Clean up merged branches
 - `gitnuke` - Delete all branches except main/dev/current
+- `gdiff [args]` - Show git diff including untracked files
 
 ### Docker Functions
-- `remote` - Connect to remote Docker host
+- `removeremote` - Unset Docker remote environment variables
 
 ### Development Functions
 - `tsc1 <file>` - Type-check a single TypeScript file
-- `prettify` - Format code with Prettier
-- `mcode` - Open VS Code with specific settings
+- `prettify [directory]` - Format code with Prettier (current dir or specified)
+- `mcode <dir...>` - Open directories in new VS Code windows
+- `gccc <file>` - Compile and run C program
+- `gcpp <file>` - Compile and run C++ program
+- `jc <file>` - Compile and run Java program
 
 ### macOS Functions
-- `bright <level>` - Set screen brightness (0-100)
+- `bright` - Remap brightness keys using hidutil
 - `cleardock` - Reset macOS Dock to defaults
 - `touchidsudo` - Enable Touch ID for sudo
 - `wifiname` - Get current WiFi network name
@@ -135,8 +139,13 @@ remote           # Connect to configured Docker host
 tsc1 src/app.ts  # Check single file
 
 # macOS utilities
-bright 50        # Set brightness to 50%
+bright           # Remap brightness keys
 wifiname         # Show current WiFi network
+
+# Compile and run
+gccc myprogram   # Compile and run C program
+gcpp myprogram   # Compile and run C++ program
+jc MyClass       # Compile and run Java class
 ```
 
 ## LaunchAgent Services (Optional)
