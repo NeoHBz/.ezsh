@@ -3,4 +3,5 @@
 
 # repo files
 .env
+.config
 logs/
