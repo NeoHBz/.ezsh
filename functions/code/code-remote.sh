@@ -1,6 +1,6 @@
 code-remote() {
-    # File for storing configuration
-    local config_file="$HOME/.zsh/.temp/.code-remote-config.json"
+    # Configuration file path
+    local config_file="$HOME/.ezsh/.temp/.code-remote-config.json"
     local default_base_dir="/home"
 
     # Ensure the config file exists

@@ -1,5 +1,5 @@
 launchagenthandler() {
-    local base_dir="$HOME/.zsh/services/mac"
+    local base_dir="$HOME/.ezsh/services/mac"
     local launch_agents_dir="$HOME/Library/LaunchAgents"
     case "$1" in
         loadall)

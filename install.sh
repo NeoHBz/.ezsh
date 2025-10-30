@@ -1,8 +1,8 @@
-#!/bin/bash
+#!/bin/zsh
 
-inject_load_script() {
+add_to_zshrc() {
   ZSHRC_FILE="$HOME/.zshrc"
-  LOAD_SCRIPT_LINE='source ~/.zsh/load.sh'
+  LOAD_SCRIPT_LINE='source ~/.ezsh/load.sh'
 
   # Display the command to be added
   echo "The following line will be added to $ZSHRC_FILE:"
