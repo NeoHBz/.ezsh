@@ -1,0 +1,12 @@
+# .ezsh Configuration File
+# This file controls which services are enabled
+# Copy this file to .config and customize as needed:
+#   cp .config.example .config
+
+# ============================================================================
+# Services Control
+# ============================================================================
+# List enabled services by their script names (comma-separated, no spaces)
+# Available services: dynamic_dns_service, lpu_auto_login
+# Example: ENABLED_SERVICES="lpu_auto_login,dynamic_dns_service"
+ENABLED_SERVICES=""
