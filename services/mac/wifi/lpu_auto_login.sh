@@ -51,16 +51,16 @@ main() {
     log "=== LPU Auto-Login Service Started ==="
     
     # Get current WiFi name
-    current_wifi=$(get_wifi_name)
+    current_wifi=$(wifiname)
     log "Current WiFi: $current_wifi"
     
     # Check if we're on LPU network
     is_lpu_network=false
     
-    if wifi_matches_exact "$current_wifi" "${LPU_WIFI_NAMES_EXACT[@]}"; then
+    if _wifi_matches_exact "$current_wifi" "${LPU_WIFI_NAMES_EXACT[@]}"; then
         is_lpu_network=true
         log "Exact match: Connected to LPU network"
-    elif wifi_matches_substring "$current_wifi" "${LPU_WIFI_NAMES_SUBSTRING[@]}"; then
+    elif _wifi_matches_substring "$current_wifi" "${LPU_WIFI_NAMES_SUBSTRING[@]}"; then
         is_lpu_network=true
         log "Substring match: Connected to LPU network"
     fi
@@ -72,19 +72,19 @@ main() {
     
     # Check current connection status
     log "Checking connection status..."
-    if lpu_status >/dev/null 2>&1; then
+    if lpu status >/dev/null 2>&1; then
         log "Already online, no action needed"
         return 0
     fi
     
     # We're on LPU network but behind captive portal, try to login
     log "Captive portal detected, attempting login..."
-    if lpu_login; then
+    if lpu login; then
         log "Login successful"
         
         # Verify login worked
         sleep 2
-        if lpu_status >/dev/null 2>&1; then
+        if lpu status >/dev/null 2>&1; then
             log "Connection verified: Online"
         else
             log "WARNING: Login sent but connection still captive"

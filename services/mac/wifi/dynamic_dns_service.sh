@@ -44,10 +44,10 @@ IFS=',' read -ra WIFI_NAMES_SUBSTRING <<< "${WIFI_NAMES_SUBSTRING:-}"
 mkdir -p "$LOG_DIR"
 
 # Get current Wi-Fi name
-current_wifi=$(get_wifi_name)
+current_wifi=$(wifiname)
 
 # Log the current Wi-Fi
-log "Current WiFi: $current_wifi"
+__dns_log "Current WiFi: $current_wifi"
 
 # Variables for matching
 wifi_matched=false
@@ -55,22 +55,22 @@ match_type=""
 matched_entry=""
 
 # Check for exact match
-if wifi_matches_exact "$current_wifi" "${WIFI_NAMES_EXACT[@]}"; then
+if _wifi_matches_exact "$current_wifi" "${WIFI_NAMES_EXACT[@]}"; then
     wifi_matched=true
     match_type="exact"
-    log "Exact match found in the WIFI_NAMES_EXACT array!"
+    __dns_log "Exact match found in the WIFI_NAMES_EXACT array!"
 fi
 
 # Check for substring match (if no exact match)
-if [[ "$wifi_matched" == "false" ]] && wifi_matches_substring "$current_wifi" "${WIFI_NAMES_SUBSTRING[@]}"; then
+if [[ "$wifi_matched" == "false" ]] && _wifi_matches_substring "$current_wifi" "${WIFI_NAMES_SUBSTRING[@]}"; then
     wifi_matched=true
     match_type="substring"
-    log "Substring match found in the WIFI_NAMES_SUBSTRING array!"
+    __dns_log "Substring match found in the WIFI_NAMES_SUBSTRING array!"
 fi
 
 if [[ "$wifi_matched" == "false" ]]; then
-    log "No match found"
+    __dns_log "No match found"
 fi
 
 # Manage DNS based on WiFi match
-manage_dns "Wi-Fi" "$wifi_matched" "$DNS_SERVER_ADDRESS"
+dnsmanage "Wi-Fi" "$wifi_matched" "$DNS_SERVER_ADDRESS"
