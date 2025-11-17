@@ -1,6 +1,6 @@
 #!/bin/zsh
 
-add_to_zshrc() {
+inject_load_script() {
   ZSHRC_FILE="$HOME/.zshrc"
   LOAD_SCRIPT_LINE='source ~/.ezsh/load.sh'
 
