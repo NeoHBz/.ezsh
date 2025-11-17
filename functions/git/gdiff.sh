@@ -28,7 +28,26 @@ gdiff() {
   # Single clean diff for tracked files
   git --no-pager diff "${args[@]}" "${pathspecs[@]}"
 
-  # Untracked files (excluding exceptions)
+  # Common patterns to ignore (lock files, etc.)
+  local ignore_patterns=(
+    "package-lock.json"
+    "yarn.lock"
+    "pnpm-lock.yaml"
+    "composer.lock"
+    "Gemfile.lock"
+    "Cargo.lock"
+    "poetry.lock"
+    "Pipfile.lock"
+    "bun.lock"
+    "bun.lockb"
+    "*.lockb"
+    ".DS_Store"
+    "*.swp"
+    "*.swo"
+    "*~"
+  )
+
+  # Untracked files (excluding exceptions and gitignore)
   git ls-files --others --exclude-standard | while read -r file; do
     [[ -z "$file" ]] && continue
     
@@ -40,6 +59,25 @@ gdiff() {
         continue
       fi
     fi
+    
+    # Skip common ignore patterns
+    local skip=false
+    for pattern in "${ignore_patterns[@]}"; do
+      if [[ "$pattern" == *"*"* ]]; then
+        # Pattern matching
+        if [[ "$file" == $pattern ]]; then
+          skip=true
+          break
+        fi
+      else
+        # Exact match
+        if [[ "$file" == "$pattern" ]] || [[ "$(basename "$file")" == "$pattern" ]]; then
+          skip=true
+          break
+        fi
+      fi
+    done
+    $skip && continue
     
     for ex in "${exceptions[@]}"; do
       [[ "$file" == "$ex" ]] && continue 2
