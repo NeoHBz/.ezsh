@@ -49,6 +49,9 @@ recur() {
                 echo "  -v / --verbose    : Show detailed execution info"
                 echo "  -j / --jobs N     : Limit parallel jobs (requires GNU parallel)"
                 echo "Defaults excluded: ${default_excludes[*]}"
+                echo "Examples:"
+                echo "  recur --exclude postgres --exclude rabbitmq -- pwd"
+                echo "  recur --recursive --exclude node_modules -- ls -al"
                 return 0 ;;
             -*) echo "Unknown flag: $1"; return 1 ;;
             *) break ;;
@@ -198,11 +201,11 @@ recur() {
     execute_in_dir() {
         local dir=$1
         
-        if $verbose && ! $parallel; then
+        if ! $parallel; then
             if $use_colors; then
-                printf "\n${dir_color}>>> %s${reset_color}\n" "$dir"
+                printf "\n${dir_color}Directory: %s${reset_color}\n" "$dir"
             else
-                printf '\n>>> %s\n' "$dir"
+                printf '\nDirectory: %s\n' "$dir"
             fi
         fi
         
