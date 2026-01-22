@@ -1,7 +1,31 @@
 gdiff() {
+  # Help / Usage
+  if [[ "$1" == "help" || "$1" == "--help" || "$1" == "-h" ]]; then
+    echo "Usage: gdiff [options] [--except <file>...]"
+    echo
+    echo "Description:"
+    echo "  Enhanced git diff that includes untracked files and supports exclusions."
+    echo
+    echo "Options:"
+    echo "  --except <pattern>   Exclude files matching pattern"
+    echo "  --help, -h, help     Show this help message"
+    echo
+    echo "Examples:"
+    echo "  gdiff"
+    echo "  gdiff --cached"
+    echo "  gdiff --except '*.lock' --except 'generated/*'"
+    return 0
+  fi
+
+  # Verify git is installed
+  if ! command -v git &>/dev/null; then
+    echo "Error: git is not installed or not in PATH." >&2
+    return 1
+  fi
+
   # Verify inside git repo
   if ! git rev-parse --is-inside-work-tree &>/dev/null; then
-    echo "Not a git repository." >&2
+    echo "Error: Not a git repository (or any of the parent directories)." >&2
     return 1
   fi
 
@@ -26,7 +50,10 @@ gdiff() {
   done
 
   # Single clean diff for tracked files
-  git --no-pager diff "${args[@]}" "${pathspecs[@]}"
+  if ! git --no-pager diff "${args[@]}" "${pathspecs[@]}"; then
+    echo "Error: Failed to execute git diff." >&2
+    return 1
+  fi
 
   # Common patterns to ignore (lock files, etc.)
   local ignore_patterns=(
