@@ -48,6 +48,7 @@ recur() {
                 echo "  -x / --expand     : Show expanded commands (with -n)"
                 echo "  -v / --verbose    : Show detailed execution info"
                 echo "  -j / --jobs N     : Limit parallel jobs (requires GNU parallel)"
+                echo "  {}                : Placeholder for current directory path"
                 echo "Defaults excluded: ${default_excludes[*]}"
                 echo "Examples:"
                 echo "  recur --exclude postgres --exclude rabbitmq -- pwd"
@@ -212,9 +213,15 @@ recur() {
         cd "$dir" || return 1
         
         if $use_shell; then
-            eval "$cmd_string"
+            local run_cmd="${cmd_string//\{\}/\"$dir\"}"
+            eval "$run_cmd"
         else
-            "${cmd_parts[@]}"
+            local -a run_parts=()
+            local p
+            for p in "${cmd_parts[@]}"; do
+                run_parts+=("${p//\{\}/$dir}")
+            done
+            "${run_parts[@]}"
         fi
     }
 
@@ -238,7 +245,7 @@ recur() {
 
             if $use_shell; then
                 export RECUR_CMD_STRING="$cmd_string"
-                printf '%s\0' "${dirs[@]}" | parallel -0 "${parallel_opts[@]}" 'cd {} && ( eval "$RECUR_CMD_STRING" ) || echo {} >> "$RECUR_FAIL_FILE"'
+                printf '%s\0' "${dirs[@]}" | parallel -0 "${parallel_opts[@]}" 'cd "{}" && ( RECUR_DIR="{}"; eval "${RECUR_CMD_STRING//\{\}/$RECUR_DIR}" ) || echo "{}" >> "$RECUR_FAIL_FILE"'
             else
                 local RECUR_ARGSTRING
                 printf -v RECUR_ARGSTRING '%q ' "${cmd_parts[@]}"
