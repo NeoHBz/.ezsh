@@ -132,8 +132,18 @@ run() {
       eval "pm2 start $ecosystem_file" 
       ;;
     t)
-      # Run turbo build
+      # Run turbo scripts (dev/start/build) if available in turbo.json
       if [ -f ".turbo" ] || [ -f "turbo.json" ]; then
+        if [ -f "turbo.json" ]; then
+          for script in "dev" "start" "build"; do
+            if jq -e "(.pipeline // .tasks // {}) | has(\"$script\")" turbo.json >/dev/null 2>&1; then
+              eval "turbo run $script"
+              return 0
+            fi
+          done
+        fi
+
+        # Fallback to turbo build if no scripts were found in turbo.json
         eval "turbo run build"
         return 0
       fi
