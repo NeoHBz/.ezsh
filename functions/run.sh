@@ -2,6 +2,7 @@ run() {
   local package_manager="bun"
   local file_arg="$1"
   local choice=""
+  local -a run_args=("$@")
 
   # Handle direct file execution if a file argument is provided
   if [ -n "$file_arg" ] && [ -f "$file_arg" ]; then
@@ -52,15 +53,19 @@ run() {
     [ -f "ecosystem.config.js" ] && ecosystem_file="ecosystem.config.js"
     [ -f "ecosystem.config.cjs" ] && ecosystem_file="ecosystem.config.cjs"
     [ -f "ecosystem.config.mjs" ] && ecosystem_file="ecosystem.config.mjs"
+    local docker_compose_file=""
+    [ -f "docker-compose.yml" ] && docker_compose_file="docker-compose.yml"
+    [ -f "docker-compose.yaml" ] && docker_compose_file="docker-compose.yaml"
     
     if [ -n "$ecosystem_file" ]; then
-      if [ -f "package.json" ] || [ -f "composer.json" ] || [ -f ".turbo" ] || [ -f "turbo.json" ]; then
+      if [ -f "package.json" ] || [ -f "composer.json" ] || [ -f ".turbo" ] || [ -f "turbo.json" ] || [ -n "$docker_compose_file" ]; then
         # Build options list for user selection
   local -a menu_options
   menu_options=()
         [ -f "package.json" ] && menu_options+=("package.json (p)")
         [ -f "composer.json" ] && menu_options+=("composer.json (c)")
         ([ -f ".turbo" ] || [ -f "turbo.json" ]) && menu_options+=(".turbo/turbo.json (t)")
+        [ -n "$docker_compose_file" ] && menu_options+=("$docker_compose_file (d)")
         menu_options+=("$ecosystem_file (e)")
 
         if command -v gum &>/dev/null; then
@@ -102,6 +107,8 @@ run() {
       fi
     elif [ -f ".turbo" ] || [ -f "turbo.json" ]; then
       choice="t"
+    elif [ -n "$docker_compose_file" ]; then
+      choice="d"
     else
       echo "No supported configuration files found in the current directory."
       return 1
@@ -167,6 +174,14 @@ run() {
           eval "php -S localhost:9999"
         fi
         return 0
+      fi
+      return 1
+      ;;
+    d)
+      # Run docker compose
+      if [ -f "docker-compose.yml" ] || [ -f "docker-compose.yaml" ]; then
+        docker compose "${run_args[@]}"
+        return $?
       fi
       return 1
       ;;
