@@ -113,6 +113,29 @@ function _lpu_login() {
     __lpu_debug "Full POST data: $data"
   fi
 
+  __lpu_debug "Priming portal cookies from referer"
+  if ! curl -sSf -b "$COOKIEJAR" -c "$COOKIEJAR" \
+    -H "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7" \
+    -H "Accept-Language: en-US,en;q=0.9" \
+    -H "Cache-Control: max-age=0" \
+    -H "Connection: keep-alive" \
+    -H "DNT: 1" \
+    -H "Origin: $ORIGIN" \
+    -H "Referer: $REFERER" \
+    -H "Sec-Fetch-Dest: document" \
+    -H "Sec-Fetch-Mode: navigate" \
+    -H "Sec-Fetch-Site: same-origin" \
+    -H "Sec-Fetch-User: ?1" \
+    -H "Upgrade-Insecure-Requests: 1" \
+    -H "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36" \
+    -H "sec-ch-ua: \"Not(A:Brand\";v=\"8\", \"Chromium\";v=\"144\", \"Google Chrome\";v=\"144\"" \
+    -H "sec-ch-ua-mobile: ?0" \
+    -H "sec-ch-ua-platform: \"macOS\"" \
+    --compressed \
+    "$REFERER" >/dev/null; then
+    __lpu_debug "Cookie priming request failed (continuing anyway)"
+  fi
+
   # Capture response for analysis
   local TMPFILE="/tmp/lpu_login_response_$$.html"
   __lpu_debug "Cookie jar: $COOKIEJAR"
@@ -134,8 +157,8 @@ function _lpu_login() {
     -H "Sec-Fetch-Site: same-origin" \
     -H "Sec-Fetch-User: ?1" \
     -H "Upgrade-Insecure-Requests: 1" \
-    -H "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36" \
-    -H "sec-ch-ua: \"Chromium\";v=\"142\", \"Google Chrome\";v=\"142\", \"Not_A Brand\";v=\"99\"" \
+    -H "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36" \
+    -H "sec-ch-ua: \"Not(A:Brand\";v=\"8\", \"Chromium\";v=\"144\", \"Google Chrome\";v=\"144\"" \
     -H "sec-ch-ua-mobile: ?0" \
     -H "sec-ch-ua-platform: \"macOS\"" \
     --compressed \
@@ -217,7 +240,17 @@ function _lpu_logout() {
 
   data="mode=193&isAccessDenied=null&url=null&message=&regusingpinid=&checkClose=1&sessionTimeout=-1&guestmsgreq=false&logintype=2&orgSessionTimeout=-1&chrome=1&alerttime=-11&timeout=-1&popupalert=1&dtold=0&mac=${mac_e}&servername=${LPU_SERVER}&temptype=&selfregpageid=&leave=no&macaddress=${mac_e}&ipaddress=${ip_e}&loggedinuser=${user_e}&username=${user_e}&logout=Logout&saveinfo="
 
-  if curl -sSf -b "$COOKIEJAR" -c "$COOKIEJAR" \
+  __lpu_debug "Logout target: $URL"
+  __lpu_debug "Network: device=$WIFI_DEV mac=${MAC:-unknown} ip=${IP:-unknown}"
+  __lpu_debug "URL-encoded MAC: $mac_e"
+  __lpu_debug "URL-encoded IP: $ip_e"
+  __lpu_debug "URL-encoded username: $user_e"
+  __lpu_debug "Logout form data length: ${#data}"
+  __lpu_debug "Cookie jar: $COOKIEJAR"
+
+  __lpu_debug "Sending logout request..."
+  local curl_exit
+  curl -sSf -b "$COOKIEJAR" -c "$COOKIEJAR" \
     -H "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7" \
     -H "Accept-Encoding: gzip, deflate, br, zstd" \
     -H "Accept-Language: en-US,en;q=0.9" \
@@ -232,14 +265,19 @@ function _lpu_logout() {
     -H "Sec-Fetch-Site: same-origin" \
     -H "Sec-Fetch-User: ?1" \
     -H "Upgrade-Insecure-Requests: 1" \
-    -H "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36" \
-    -H "sec-ch-ua: \"Chromium\";v=\"142\", \"Google Chrome\";v=\"142\", \"Not_A Brand\";v=\"99\"" \
+    -H "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36" \
+    -H "sec-ch-ua: \"Not(A:Brand\";v=\"8\", \"Chromium\";v=\"144\", \"Google Chrome\";v=\"144\"" \
     -H "sec-ch-ua-mobile: ?0" \
     -H "sec-ch-ua-platform: \"macOS\"" \
     --compressed \
-    --data-raw "$data" "$URL" >/dev/null; then
+    --data-raw "$data" "$URL" >/dev/null
+  curl_exit=$?
+  __lpu_debug "Logout curl exit: $curl_exit"
+
+  if [[ $curl_exit -eq 0 ]]; then
     echo "Logged out."
   else
+    __lpu_debug "Logout response indicates failure"
     echo "Logout failed." >&2
     return 1
   fi
