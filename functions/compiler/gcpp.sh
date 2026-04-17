@@ -3,7 +3,7 @@ gcpp() {
     local filename=$1
     local launch_program="g++"
     if [[ "$OS_TYPE" == "Darwin" ]]; then
-        launch_program="/opt/homebrew/bin/g++-14"
+        launch_program="/opt/homebrew/bin/g++-15"
     fi
     if [[ $filename == *.cpp ]]; then
         filename=${filename%.cpp}
